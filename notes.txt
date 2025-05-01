@@ -1,0 +1,8 @@
+Source:
+https://www.redblobgames.com/pathfinding/a-star/introduction.html
+
+How to represent map
+    A* takes a graph as an input
+
+Graph has nodes and edges
+A* sees nothing but the graph
