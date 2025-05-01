@@ -1,7 +1,12 @@
 Source:
+A*
+https://www.geeksforgeeks.org/a-search-algorithm-in-python/
 https://www.redblobgames.com/pathfinding/a-star/introduction.html
+Pygame
 https://www.pygame.org/docs/
 https://stackoverflow.com/questions/33963361/how-to-make-a-grid-in-pygame
+https://www.geeksforgeeks.org/a-search-algorithm-in-python/
+https://stackoverflow.com/questions/19117062/how-to-add-text-into-a-pygame-rectangle
 
 How to represent map
     A* takes a graph as an input

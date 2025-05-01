@@ -6,9 +6,15 @@ import pygame
 #height and width of the window
 WINDOW_HEIGHT = 720
 WINDOW_WIDTH = 720
+
+#Some predefined colors
 BLACK = (0,0,0)
 WHITE = (200,200,200)
 RED = (255,0,0)
+GREY = (128,128,128)
+BLUE = (0,0,255)
+GREEN = (0,255,0)
+
 
 class Cell:
   def __init__(self):
@@ -175,15 +181,15 @@ def a_star_search(grid, src, dest):
 def main():
   # Define the grid (1 for unblocked, 0 for blocked)
   grid = [
-    [1, 0, 1, 1, 1, 1, 0, 1, 1, 1],
-    [1, 1, 1, 0, 1, 1, 1, 0, 1, 1],
-    [1, 1, 1, 0, 1, 1, 0, 1, 0, 1],
-    [0, 0, 1, 0, 1, 0, 0, 0, 0, 1],
-    [1, 1, 1, 0, 1, 1, 1, 0, 1, 0],
-    [1, 0, 1, 1, 1, 1, 0, 1, 0, 0],
-    [1, 0, 0, 0, 0, 1, 0, 0, 0, 1],
-    [1, 0, 1, 1, 1, 1, 0, 1, 1, 1],
-    [1, 1, 1, 0, 0, 0, 1, 0, 0, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    [0, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    [0, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    [0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
   ]
 
@@ -220,16 +226,32 @@ def main():
     blockSize = WINDOW_WIDTH//10
     for x in range(0, WINDOW_WIDTH, blockSize):
       for y in range(0, WINDOW_HEIGHT, blockSize):
-        print("x is: ", x)
-        print("y is: ", y)
+        #get actual value for coordinates
+        coordinateX = x//blockSize
+        coordinateY = y//blockSize
+        #to check if point is on path
         onPath = False
         rect = pygame.Rect(x, y, blockSize, blockSize)
+        #path color is default to red
+        color = RED
+        #check if source or end node
+        if(coordinateX == src[0] and coordinateY == src[1]):
+          color = BLUE
+        elif(coordinateX == dest[0] and coordinateY == dest[1]):
+          color = GREEN
         for point in res:
-          if(x == point[0] and y == point[1]):
-            pygame.draw.rect(screen, RED, rect, 0)
-        
+          if(coordinateX == point[0] and coordinateY == point[1]):
+            pygame.draw.rect(screen, color, rect, 0)
+            pygame.draw.rect(screen, BLACK, rect, 1)
+            onPath = True
+        #if point is not on path
         if onPath is False:
-         pygame.draw.rect(screen, BLACK, rect, 1)
+         #check if it is an obstacle
+         if(grid[coordinateX][coordinateY] == 0):   
+          pygame.draw.rect(screen, BLACK, rect, 0)
+         else:
+          pygame.draw.rect(screen, GREY, rect, 0)
+          pygame.draw.rect(screen, BLACK, rect, 1)
 
     pygame.display.flip()
 
