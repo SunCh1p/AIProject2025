@@ -6,3 +6,6 @@ How to represent map
 
 Graph has nodes and edges
 A* sees nothing but the graph
+
+How are we going to represent graph?
+    We want a grid based graph
