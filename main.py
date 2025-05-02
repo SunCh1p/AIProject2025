@@ -1,10 +1,11 @@
 import pygame
 from astaralgorithm import *
 
-WINDOW_WIDTH = 720
+#height and width of the window
 WINDOW_HEIGHT = 720
+WINDOW_WIDTH = 720
 
-
+#Some predefined colors
 BLACK = (0,0,0)
 WHITE = (200,200,200)
 RED = (255,0,0)
