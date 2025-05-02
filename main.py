@@ -1,5 +1,18 @@
 import pygame
 from astaralgorithm import *
+
+#height and width of the window
+WINDOW_HEIGHT = 720
+WINDOW_WIDTH = 720
+
+#Some predefined colors
+BLACK = (0,0,0)
+WHITE = (200,200,200)
+RED = (255,0,0)
+GREY = (128,128,128)
+BLUE = (0,0,255)
+GREEN = (0,255,0)
+
 def main():
   # Define the grid (1 for unblocked, 0 for blocked)
   grid = [
