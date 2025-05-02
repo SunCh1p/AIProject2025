@@ -1,6 +1,22 @@
 import pygame
 from astaralgorithm import *
+
+WINDOW_WIDTH = 720
+WINDOW_HEIGHT = 720
+
+
+BLACK = (0,0,0)
+WHITE = (200,200,200)
+RED = (255,0,0)
+GREY = (128,128,128)
+BLUE = (0,0,255)
+GREEN = (0,255,0)
+
 def main():
+  #define row and col size for a*
+  row = 10
+  col = 10
+
   # Define the grid (1 for unblocked, 0 for blocked)
   grid = [
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -23,7 +39,7 @@ def main():
   res = []
 
   # Run the A* search algorithm
-  res = a_star_search(grid, src, dest)
+  res = a_star_search(grid, src, dest, row, col)
   print("The path is : ", res)
   print("the length of res is ", len(res))
 

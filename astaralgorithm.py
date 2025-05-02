@@ -2,58 +2,34 @@
 import math
 import heapq
 
-#height and width of the window
-WINDOW_HEIGHT = 720
-WINDOW_WIDTH = 720
-
-#Some predefined colors
-BLACK = (0,0,0)
-WHITE = (200,200,200)
-RED = (255,0,0)
-GREY = (128,128,128)
-BLUE = (0,0,255)
-GREEN = (0,255,0)
-
-
 class Cell:
   def __init__(self):
-  # Parent cell's row index
+    #Parent cell's row index
     self.parent_i = 0
-  # Parent cell's column index
+    #Parent cell's column index
     self.parent_j = 0
- # Total cost of the cell (g + h)
+    #Total cost of the cell (g + h)
     self.f = float('inf')
-  # Cost from start to this cell
+    #Cost from start to this cell
     self.g = float('inf')
-  # Heuristic cost from this cell to destination
+    #Heuristic cost from this cell to destination
     self.h = 0
 
-
-# Define the size of the grid
-ROW = 9
-COL = 10
-
 # Check if a cell is valid (within the grid)
-
-
-def is_valid(row, col):
-  return (row >= 0) and (row < ROW) and (col >= 0) and (col < COL)
+def is_valid(row, col, rowMax, colMax):
+  return (row >= 0) and (row < rowMax) and (col >= 0) and (col < colMax)
 
 # Check if a cell is unblocked
-
-
 def is_unblocked(grid, row, col):
   return grid[row][col] == 1
 
 # Check if a cell is the destination
-
-
 def is_destination(row, col, dest):
   return row == dest[0] and col == dest[1]
 
 # Calculate the heuristic value of a cell (Euclidean distance to destination)
 def calculate_h_value(row, col, dest):
-  return ((row - dest[0]) ** 2 + (col - dest[1]) ** 2) ** 0.5
+  return (abs(row-dest[0])+ abs(col-dest[1]))
 
 # Trace the path from source to destination
 def trace_path(cell_details, dest):
@@ -72,22 +48,17 @@ def trace_path(cell_details, dest):
 
   # Add the source cell to the path
   path.append((row, col))
+
   # Reverse the path to get the path from source to destination
   path.reverse()
 
-  # Print the path
-  for i in path:
-    print("->", i, end=" ")
-  print()
   return path
 
-# Implement the A* search algorithm
-
-
-def a_star_search(grid, src, dest):
+#implementation of A*
+def a_star_search(grid, src, dest, rowMax, colMax):
   res = []
   # Check if the source and destination are valid
-  if not is_valid(src[0], src[1]) or not is_valid(dest[0], dest[1]):
+  if not is_valid(src[0], src[1], rowMax, colMax) or not is_valid(dest[0], dest[1], rowMax, colMax):
     print("Source or destination is invalid")
     return
 
@@ -102,9 +73,9 @@ def a_star_search(grid, src, dest):
     return
 
   # Initialize the closed list (visited cells)
-  closed_list = [[False for _ in range(COL)] for _ in range(ROW)]
+  closed_list = [[False for _ in range(colMax)] for _ in range(rowMax)]
   # Initialize the details of each cell
-  cell_details = [[Cell() for _ in range(COL)] for _ in range(ROW)]
+  cell_details = [[Cell() for _ in range(colMax)] for _ in range(rowMax)]
 
   # Initialize the start cell details
   i = src[0]
@@ -133,20 +104,18 @@ def a_star_search(grid, src, dest):
     closed_list[i][j] = True
 
     # For each direction, check the successors
-    directions = [(0, 1), (0, -1), (1, 0), (-1, 0),
-                  (1, 1), (1, -1), (-1, 1), (-1, -1)]
+    directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]
     for dir in directions:
       new_i = i + dir[0]
       new_j = j + dir[1]
 
       # If the successor is valid, unblocked, and not visited
-      if is_valid(new_i, new_j) and is_unblocked(grid, new_i, new_j) and not closed_list[new_i][new_j]:
+      if is_valid(new_i, new_j, rowMax, colMax) and is_unblocked(grid, new_i, new_j) and not closed_list[new_i][new_j]:
         # If the successor is the destination
         if is_destination(new_i, new_j, dest):
           # Set the parent of the destination cell
           cell_details[new_i][new_j].parent_i = i
           cell_details[new_i][new_j].parent_j = j
-          print("The destination cell is found")
           # Trace and print the path from source to destination
           res = trace_path(cell_details, dest)
           found_dest = True
@@ -159,9 +128,9 @@ def a_star_search(grid, src, dest):
 
           # If the cell is not in the open list or the new f value is smaller
           if cell_details[new_i][new_j].f == float('inf') or cell_details[new_i][new_j].f > f_new:
-            # Add the cell to the open list
+            #Add the cell to the open list
             heapq.heappush(open_list, (f_new, new_i, new_j))
-            # Update the cell details
+            #Update the cell details
             cell_details[new_i][new_j].f = f_new
             cell_details[new_i][new_j].g = g_new
             cell_details[new_i][new_j].h = h_new
