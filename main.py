@@ -1,103 +1,106 @@
 import pygame
 from astaralgorithm import *
 
-#height and width of the window
+# Window dimensions and grid settings
 WINDOW_HEIGHT = 720
 WINDOW_WIDTH = 720
+ROWS, COLS = 10, 10
+BLOCK_SIZE = WINDOW_WIDTH // COLS
 
-#Some predefined colors
-BLACK = (0,0,0)
-WHITE = (200,200,200)
-RED = (255,0,0)
-GREY = (128,128,128)
-BLUE = (0,0,255)
-GREEN = (0,255,0)
+# Color definitions
+BLACK = (0, 0, 0)
+WHITE = (200, 200, 200)
+RED = (255, 0, 0)       
+ORANGE = (255, 165, 0)  
+BLUE = (0, 0, 255)      
+GREEN = (0, 255, 0)     
+GREY = (128, 128, 128)  
 
 def main():
-  #define row and col size for a*
-  row = 10
-  col = 10
+    grid = [[1 for _ in range(COLS)] for _ in range(ROWS)]  
+    src = None
+    dest = None
+    res = []
 
-  # Define the grid (1 for unblocked, 0 for blocked)
-  grid = [
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-    [0, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-    [0, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-    [0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
-    [0, 1, 0, 1, 1, 1, 1, 1, 1, 1],
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-  ]
+    # Animation
+    agent_index = 0
+    agent_timer = 0
+    agent_speed = 500  
 
-  # Define the source and destination
-  src = [8, 0]
-  dest = [0, 0]
+    pygame.init()
+    screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
+    clock = pygame.time.Clock()
+    running = True
 
-  #res path
-  res = []
+    while running:
+        delta_time = clock.tick(60)
 
-  # Run the A* search algorithm
-  res = a_star_search(grid, src, dest, row, col)
-  print("The path is : ", res)
-  print("the length of res is ", len(res))
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
 
-  #pygame set up
-  pygame.init()
-  screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
-  clock = pygame.time.Clock()
-  running = True
+            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                x, y = pygame.mouse.get_pos()
+                col = x // BLOCK_SIZE
+                row = y // BLOCK_SIZE
+                clicked = [row, col]  
 
-  
-  while running:
-    #poll for events
-    for event in pygame.event.get():
-      if event.type == pygame.QUIT:
-        running = False
-    #fill background of screen with white
-    screen.fill(WHITE)
+                if src is None:
+                    src = clicked
+                elif clicked == src:
+                    src = None
+                    res = []
+                elif dest is None and clicked != src:
+                    dest = clicked
+                elif clicked == dest:
+                    dest = None
+                    res = []
+                elif clicked != src and clicked != dest:
+                    grid[row][col] = 0 if grid[row][col] == 1 else 1
+                    res = []
 
-    #render path finding stuff here
-    #draw the grid
-    #calculate block size from screen width and height
-    blockSize = WINDOW_WIDTH//10
-    for x in range(0, WINDOW_WIDTH, blockSize):
-      for y in range(0, WINDOW_HEIGHT, blockSize):
-        #get actual value for coordinates
-        coordinateX = x//blockSize
-        coordinateY = y//blockSize
-        #to check if point is on path
-        onPath = False
-        rect = pygame.Rect(x, y, blockSize, blockSize)
-        #path color is default to red
-        color = RED
-        #check if source or end node
-        if(coordinateX == src[0] and coordinateY == src[1]):
-          color = BLUE
-        elif(coordinateX == dest[0] and coordinateY == dest[1]):
-          color = GREEN
-        for point in res:
-          if(coordinateX == point[0] and coordinateY == point[1]):
-            pygame.draw.rect(screen, color, rect, 0)
-            pygame.draw.rect(screen, BLACK, rect, 1)
-            onPath = True
-        #if point is not on path
-        if onPath is False:
-         #check if it is an obstacle
-         if(grid[coordinateX][coordinateY] == 0):   
-          pygame.draw.rect(screen, BLACK, rect, 0)
-         else:
-          pygame.draw.rect(screen, GREY, rect, 0)
-          pygame.draw.rect(screen, BLACK, rect, 1)
+                if src and dest:
+                    res = a_star_search(grid, src, dest, ROWS, COLS)
+                    if res is None:
+                        res = []
+                    agent_index = 0
+                    agent_timer = 0
+                    print("The path is:", res)
 
-    pygame.display.flip()
+        
+        if res and agent_index < len(res):
+            agent_timer += delta_time
+            if agent_timer >= agent_speed:
+                agent_index += 1
+                agent_timer = 0
 
-    clock.tick(60)
+        # Draw grid
+        screen.fill(WHITE)
+        for i in range(ROWS):
+            for j in range(COLS):
+                x = j * BLOCK_SIZE
+                y = i * BLOCK_SIZE
+                rect = pygame.Rect(x, y, BLOCK_SIZE, BLOCK_SIZE)
 
-  pygame.quit()
+                if [i, j] == src:
+                    color = BLUE
+                elif [i, j] == dest:
+                    color = GREEN
+                elif res and agent_index > 0 and [i, j] == res[agent_index - 1]:
+                    color = RED 
+                elif res and [i, j] in res[:agent_index - 1]:
+                    color = ORANGE  
+                elif grid[i][j] == 0:
+                    color = BLACK
+                else:
+                    color = GREY
 
+                pygame.draw.rect(screen, color, rect)
+                pygame.draw.rect(screen, BLACK, rect, 1)
+
+        pygame.display.flip()
+
+    pygame.quit()
 
 if __name__ == "__main__":
     main()
