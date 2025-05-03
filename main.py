@@ -10,22 +10,22 @@ BLOCK_SIZE = WINDOW_WIDTH // COLS
 # Color definitions
 BLACK = (0, 0, 0)
 WHITE = (200, 200, 200)
-RED = (255, 0, 0)       
-ORANGE = (255, 165, 0)  
-BLUE = (0, 0, 255)      
-GREEN = (0, 255, 0)     
-GREY = (128, 128, 128)  
+RED = (255, 0, 0)       # Agent
+ORANGE = (255, 165, 0)  # Trail
+BLUE = (0, 0, 255)      # Start
+GREEN = (0, 255, 0)     # Goal
+GREY = (128, 128, 128)
 
 def main():
-    grid = [[1 for _ in range(COLS)] for _ in range(ROWS)]  
+    grid = [[1 for _ in range(COLS)] for _ in range(ROWS)]  # 1 = free, 0 = obstacle
     src = None
     dest = None
     res = []
 
-    # Animation
+    # Agent animation
     agent_index = 0
     agent_timer = 0
-    agent_speed = 500  
+    agent_speed = 500  # ms per step
 
     pygame.init()
     screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
@@ -43,7 +43,7 @@ def main():
                 x, y = pygame.mouse.get_pos()
                 col = x // BLOCK_SIZE
                 row = y // BLOCK_SIZE
-                clicked = [row, col]  
+                clicked = [row, col]
 
                 if src is None:
                     src = clicked
@@ -67,7 +67,7 @@ def main():
                     agent_timer = 0
                     print("The path is:", res)
 
-        
+        # Agent animation update
         if res and agent_index < len(res):
             agent_timer += delta_time
             if agent_timer >= agent_speed:
@@ -87,14 +87,15 @@ def main():
                 elif [i, j] == dest:
                     color = GREEN
                 elif res and agent_index > 0 and [i, j] == res[agent_index - 1]:
-                    color = RED 
+                    color = RED
                 elif res and [i, j] in res[:agent_index - 1]:
-                    color = ORANGE  
+                    color = ORANGE
                 elif grid[i][j] == 0:
                     color = BLACK
                 else:
                     color = GREY
 
+                # ✅ FIX: this was wrongly indented before
                 pygame.draw.rect(screen, color, rect)
                 pygame.draw.rect(screen, BLACK, rect, 1)
 
