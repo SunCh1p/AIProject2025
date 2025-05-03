@@ -10,22 +10,21 @@ BLOCK_SIZE = WINDOW_WIDTH // COLS
 # Color definitions
 BLACK = (0, 0, 0)
 WHITE = (200, 200, 200)
-RED = (255, 0, 0)       # Agent
-ORANGE = (255, 165, 0)  # Trail
-BLUE = (0, 0, 255)      # Start
-GREEN = (0, 255, 0)     # Goal
+RED = (255, 0, 0)
 GREY = (128, 128, 128)
+BLUE = (0, 0, 255)
+GREEN = (0, 255, 0)
+ORANGE = (255, 165, 0)  # Agent color
 
 def main():
-    grid = [[1 for _ in range(COLS)] for _ in range(ROWS)]  # 1 = free, 0 = obstacle
+    grid = [[1 for _ in range(COLS)] for _ in range(ROWS)]
     src = None
     dest = None
     res = []
 
-    # Agent animation
     agent_index = 0
     agent_timer = 0
-    agent_speed = 500  # ms per step
+    agent_speed = 500  # ms
 
     pygame.init()
     screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
@@ -33,7 +32,7 @@ def main():
     running = True
 
     while running:
-        delta_time = clock.tick(60)
+        delta_time = clock.tick(1000)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -67,15 +66,14 @@ def main():
                     agent_timer = 0
                     print("The path is:", res)
 
-        # Agent animation update
         if res and agent_index < len(res):
             agent_timer += delta_time
             if agent_timer >= agent_speed:
                 agent_index += 1
                 agent_timer = 0
 
-        # Draw grid
         screen.fill(WHITE)
+
         for i in range(ROWS):
             for j in range(COLS):
                 x = j * BLOCK_SIZE
@@ -86,18 +84,19 @@ def main():
                     color = BLUE
                 elif [i, j] == dest:
                     color = GREEN
-                elif res and agent_index > 0 and [i, j] == res[agent_index - 1]:
+                elif res and [i, j] in res:
                     color = RED
-                elif res and [i, j] in res[:agent_index - 1]:
-                    color = ORANGE
-                elif grid[i][j] == 0:
-                    color = BLACK
                 else:
-                    color = GREY
+                    color = GREY if grid[i][j] == 1 else BLACK
 
-                # ✅ FIX: this was wrongly indented before
                 pygame.draw.rect(screen, color, rect)
                 pygame.draw.rect(screen, BLACK, rect, 1)
+
+        # Draw moving agent (orange square)
+        if res and agent_index > 0 and agent_index <= len(res):
+            row, col = res[agent_index - 1]
+            rect = pygame.Rect(col * BLOCK_SIZE, row * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE)
+            pygame.draw.rect(screen, ORANGE, rect)
 
         pygame.display.flip()
 
