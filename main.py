@@ -78,7 +78,6 @@ def main():
                     dest = None
                     #set the path to empty becuase it is not vaild anymore  
                     visited_path = []
-
                 #set dest if src is set 
                 elif dest is None and clicked != src and src != None:
                     dest = clicked
@@ -96,6 +95,7 @@ def main():
                 if src and dest:
                     #get the path if it exists
                     path_found = a_star_search(grid, src, dest, ROWS, COLS)
+                    visited_path = path_found
                     #if path found just doesn't return any
                     if path_found is None:
                         path_found = []
@@ -103,12 +103,16 @@ def main():
                     agent_index = 0
                     agent_timer = 0
                     print("The path is:", path_found)
+                    print("The visited path is: ", visited_path)
 
         if path_found and agent_index < len(path_found):
             agent_timer += delta_time
             if agent_timer >= agent_speed:
                 #each block the agent move we save postion then we draw the red for the path
-                visited_path.append(path_found[agent_index])
+                #visited_path.remove(path_found[agent_index])
+                if(agent_index != 0):
+                    visited_path[agent_index-1] = (-1,1)
+                print("curr location: ", path_found[agent_index])
                 agent_index += 1
                 agent_timer = 0
 
@@ -135,7 +139,6 @@ def main():
                 #other wise print it as grey
                 else:
                     color = GREY if grid[i][j] == 1 else BLACK
-
                 pygame.draw.rect(screen, color, rect, 0)
                 pygame.draw.rect(screen, BLACK, rect, 1)
 
