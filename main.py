@@ -1,20 +1,20 @@
 import pygame
 from astaralgorithm import *
 
-# Window dimensions and grid settings
-WINDOW_HEIGHT = 720
-WINDOW_WIDTH = 720
-ROWS, COLS = 10, 10
+#dimensions and grid settings
+WINDOW_HEIGHT = 600
+WINDOW_WIDTH = 600
+ROWS, COLS = 50, 50
 BLOCK_SIZE = WINDOW_WIDTH // COLS
 
-# Color definitions
+#predefined colors
 BLACK = (0, 0, 0)
 WHITE = (200, 200, 200)
 RED = (255, 0, 0)
 GREY = (128, 128, 128)
 BLUE = (0, 0, 255)
 GREEN = (0, 255, 0)
-ORANGE = (255, 165, 0)  # Agent color
+ORANGE = (255, 165, 0)
 
 def main():
     #create the grid
@@ -38,6 +38,8 @@ def main():
     #variable for running
     running = True
     while running:
+
+        #process events
         delta_time = clock.tick(1000)
         #get teh event
         for event in pygame.event.get():
@@ -68,52 +70,61 @@ def main():
                 #set dest if src is set 
                 elif dest is None and clicked != src and src != None:
                     dest = clicked
-                elif clicked == dest:
-                    dest = None
-                    path_found = []
+                #if not setting src of dest, set barrier
                 elif clicked != src and clicked != dest:
                     grid[row][col] = 0 if grid[row][col] == 1 else 1
+                    #reset path found
                     path_found = []
-
+                #if src and dest are found, get the path
                 if src and dest:
+                    #get the path if it exists
                     path_found = a_star_search(grid, src, dest, ROWS, COLS)
+                    #if path found just doesn't return any
                     if path_found is None:
                         path_found = []
+                    #otherwise agent index and timer is set to 0
                     agent_index = 0
                     agent_timer = 0
                     print("The path is:", path_found)
-
         if path_found and agent_index < len(path_found):
             agent_timer += delta_time
             if agent_timer >= agent_speed:
                 agent_index += 1
                 agent_timer = 0
 
+        #display outputs
         screen.fill(WHITE)
-
+        #for every row and column
         for i in range(ROWS):
             for j in range(COLS):
+                # print("path found: ", path_found)
+                # print("current coord: ", (i,j))
+                #get actual coordinate on screen
                 x = j * BLOCK_SIZE
                 y = i * BLOCK_SIZE
                 rect = pygame.Rect(x, y, BLOCK_SIZE, BLOCK_SIZE)
-
+                #if current coordinate is the source, make rect blue
                 if [i, j] == src:
                     color = BLUE
+                #if current coordinate is the dest, make it green
                 elif [i, j] == dest:
                     color = GREEN
-                elif path_found and [i, j] in path_found:
+                #if it is on the path, make it red
+                elif path_found and (i,j) in path_found:
                     color = RED
+                #other wise print it as grey
                 else:
                     color = GREY if grid[i][j] == 1 else BLACK
 
-                pygame.draw.rect(screen, color, rect)
+                pygame.draw.rect(screen, color, rect, 0)
                 pygame.draw.rect(screen, BLACK, rect, 1)
 
         # Draw moving agent (orange square)
         if path_found and agent_index > 0 and agent_index <= len(path_found):
             row, col = path_found[agent_index - 1]
             rect = pygame.Rect(col * BLOCK_SIZE, row * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE)
-            pygame.draw.rect(screen, ORANGE, rect)
+            pygame.draw.rect(screen, ORANGE, rect, 0)
+            pygame.draw.rect(screen, BLACK, rect, 1)
 
         pygame.display.flip()
 
