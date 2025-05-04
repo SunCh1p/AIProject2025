@@ -7,16 +7,4 @@ https://www.pygame.org/docs/
 https://stackoverflow.com/questions/33963361/how-to-make-a-grid-in-pygame
 https://www.geeksforgeeks.org/a-search-algorithm-in-python/
 https://stackoverflow.com/questions/19117062/how-to-add-text-into-a-pygame-rectangle
-
-How to represent map
-    A* takes a graph as an input
-
-Graph has nodes and edges
-A* sees nothing but the graph
-
-How are we going to represent graph?
-    We want a grid based graph
-
-    We could use an adjacency liist
-
-    heuristic function could be euclidean or manhanttan distance
+https://medium.com/@sabahat.usman.su/a-small-paint-program-1d6cb64f8da7
