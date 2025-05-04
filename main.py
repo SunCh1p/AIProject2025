@@ -1,5 +1,6 @@
 import pygame
 from astaralgorithm import *
+import random
 
 #dimensions and grid settings
 WINDOW_HEIGHT = 600
@@ -23,11 +24,14 @@ def main():
     src = None
     dest = None
     path_found = []
+    visited_path = []
+
 
     #agent timer
     agent_index = 0
     agent_timer = 0
-    agent_speed = 500  # ms
+    agent_speed = 100  # ms
+
 
     #initialize pygame
     pygame.init()
@@ -37,25 +41,71 @@ def main():
     clock = pygame.time.Clock()
     #variable for running
     running = True
-    while running:
 
+#creating random obsctacles without blocking the start or the goal
+    def ranObstacles(gen=0.3):
+        #only genrated when the start and goal block are in the grid 
+        if not src or not dest:
+            return
+        while True:
+            #loop around the grid to place the ranObstacles 
+            for row in range(ROWS):
+                for col in range(COLS):
+                    if [row,col]==src or [row,col]==dest:
+                        grid[row][col]=1
+                    else:
+                        grid[row][col] = 0 if random.random()<gen else 1
+            test_path =a_star_search(grid,src,dest,ROWS,COLS)
+            if test_path:
+                break
+
+
+    isPressed = False
+    drawBorder = False
+    while running:
         #process events
         delta_time = clock.tick(1000)
-        #get teh event
+        #get the event
         for event in pygame.event.get():
             #close program if the event is quit
             if event.type == pygame.QUIT:
                 running = False
+            #click o will generated random obstcal and rest the path,vistied block by agent,agent move, and agent timer
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_o:
+                   ranObstacles()
+                   path_found=[]
+                   visited_path=[]
+                   agent_index=0
+                   agent_timer=0
 
-            #
-            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            #rest all everything on the grid if you click r on the keyboard 
+           
+                if event.key == pygame.K_r:
+                    grid = [[1 for _ in range(COLS)] for _ in range(ROWS)]
+                    src = None
+                    dest = None
+                    path_found = []
+                    visited_path = []
+                    agent_index=0
+                    agent_timer=0
+                if event.key ==pygame.K_b:
+                    drawBorder = not drawBorder
+                    print("Draw Border: ", drawBorder)
+         
+            
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                isPressed = True
+            elif event.type == pygame.MOUSEBUTTONUP:
+                isPressed = False
+            if isPressed == True:
+                print("Mouse is down")
                 #get position of mouse
                 x, y = pygame.mouse.get_pos()
                 #convert mouse position to coordinates
                 col = x // BLOCK_SIZE
                 row = y // BLOCK_SIZE
                 clicked = [row, col]
-
                 #if src is none, set src to clicked coordinates
                 if src is None:
                     src = clicked
@@ -67,18 +117,26 @@ def main():
                     path_found = []
                     #set destination to nothing
                     dest = None
+                    #set the path to empty becuase it is not vaild anymore  
+                    visited_path = []
                 #set dest if src is set 
                 elif dest is None and clicked != src and src != None:
                     dest = clicked
                 #if not setting src of dest, set barrier
                 elif clicked != src and clicked != dest:
-                    grid[row][col] = 0 if grid[row][col] == 1 else 1
+                    if(drawBorder == True):
+                        grid[row][col] = 0
+                    else:
+                        grid[row][col] = 1
                     #reset path found
                     path_found = []
+                    #reset the coloring with the agent when we add obstacles
+                    visited_path = []
                 #if src and dest are found, get the path
                 if src and dest:
                     #get the path if it exists
                     path_found = a_star_search(grid, src, dest, ROWS, COLS)
+                    visited_path = path_found
                     #if path found just doesn't return any
                     if path_found is None:
                         path_found = []
@@ -86,9 +144,16 @@ def main():
                     agent_index = 0
                     agent_timer = 0
                     print("The path is:", path_found)
+                    print("The visited path is: ", visited_path)
+
         if path_found and agent_index < len(path_found):
             agent_timer += delta_time
             if agent_timer >= agent_speed:
+                #each block the agent move we save postion then we draw the red for the path
+                #visited_path.remove(path_found[agent_index])
+                if(agent_index != 0):
+                    visited_path[agent_index-1] = (-1,1)
+                print("curr location: ", path_found[agent_index])
                 agent_index += 1
                 agent_timer = 0
 
@@ -109,13 +174,12 @@ def main():
                 #if current coordinate is the dest, make it green
                 elif [i, j] == dest:
                     color = GREEN
-                #if it is on the path, make it red
-                elif path_found and (i,j) in path_found:
+                #color the path red when it is visited by the agent 
+                elif (i, j) in visited_path:
                     color = RED
                 #other wise print it as grey
                 else:
                     color = GREY if grid[i][j] == 1 else BLACK
-
                 pygame.draw.rect(screen, color, rect, 0)
                 pygame.draw.rect(screen, BLACK, rect, 1)
 
