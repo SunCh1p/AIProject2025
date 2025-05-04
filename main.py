@@ -32,6 +32,7 @@ def main():
     agent_timer = 0
     agent_speed = 100  # ms
 
+
     #initialize pygame
     pygame.init()
     #set the size of the screen
@@ -59,11 +60,12 @@ def main():
                 break
 
 
+    isPressed = False
+    drawBorder = False
     while running:
-
         #process events
         delta_time = clock.tick(1000)
-        #get teh event
+        #get the event
         for event in pygame.event.get():
             #close program if the event is quit
             if event.type == pygame.QUIT:
@@ -87,15 +89,23 @@ def main():
                     visited_path = []
                     agent_index=0
                     agent_timer=0
-            #
-            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                if event.key ==pygame.K_b:
+                    drawBorder = not drawBorder
+                    print("Draw Border: ", drawBorder)
+         
+            
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                isPressed = True
+            elif event.type == pygame.MOUSEBUTTONUP:
+                isPressed = False
+            if isPressed == True:
+                print("Mouse is down")
                 #get position of mouse
                 x, y = pygame.mouse.get_pos()
                 #convert mouse position to coordinates
                 col = x // BLOCK_SIZE
                 row = y // BLOCK_SIZE
                 clicked = [row, col]
-
                 #if src is none, set src to clicked coordinates
                 if src is None:
                     src = clicked
@@ -115,7 +125,10 @@ def main():
                     dest = clicked
                 #if not setting src of dest, set barrier
                 elif clicked != src and clicked != dest:
-                    grid[row][col] = 0 if grid[row][col] == 1 else 1
+                    if(drawBorder == True):
+                        grid[row][col] = 0
+                    else:
+                        grid[row][col] = 1
                     #reset path found
                     path_found = []
                     #reset the coloring with the agent when we add obstacles
