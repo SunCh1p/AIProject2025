@@ -23,11 +23,13 @@ def main():
     src = None
     dest = None
     path_found = []
+    visited_path = []
+
 
     #agent timer
     agent_index = 0
     agent_timer = 0
-    agent_speed = 500  # ms
+    agent_speed = 100  # ms
 
     #initialize pygame
     pygame.init()
@@ -67,6 +69,9 @@ def main():
                     path_found = []
                     #set destination to nothing
                     dest = None
+                    #set the path to empty becuase it is not vaild anymore  
+                    visited_path = []
+
                 #set dest if src is set 
                 elif dest is None and clicked != src and src != None:
                     dest = clicked
@@ -75,6 +80,8 @@ def main():
                     grid[row][col] = 0 if grid[row][col] == 1 else 1
                     #reset path found
                     path_found = []
+                    #reset the coloring with the agent when we add obstacles
+                    visited_path = []
                 #if src and dest are found, get the path
                 if src and dest:
                     #get the path if it exists
@@ -86,9 +93,12 @@ def main():
                     agent_index = 0
                     agent_timer = 0
                     print("The path is:", path_found)
+
         if path_found and agent_index < len(path_found):
             agent_timer += delta_time
             if agent_timer >= agent_speed:
+                #each block the agent move we save postion then we draw the red for the path
+                visited_path.append(path_found[agent_index])
                 agent_index += 1
                 agent_timer = 0
 
@@ -109,8 +119,8 @@ def main():
                 #if current coordinate is the dest, make it green
                 elif [i, j] == dest:
                     color = GREEN
-                #if it is on the path, make it red
-                elif path_found and (i,j) in path_found:
+                #color the path red when it is visited by the agent 
+                elif (i, j) in visited_path:
                     color = RED
                 #other wise print it as grey
                 else:
