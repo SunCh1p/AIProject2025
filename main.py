@@ -1,5 +1,6 @@
 import pygame
 from astaralgorithm import *
+import random
 
 #dimensions and grid settings
 WINDOW_HEIGHT = 600
@@ -39,6 +40,25 @@ def main():
     clock = pygame.time.Clock()
     #variable for running
     running = True
+
+#creating random obsctacles without blocking the start or the goal
+    def ranObstacles(gen=0.3):
+        #only genrated when the start and goal block are in the grid 
+        if not src or not dest:
+            return
+        while True:
+            #loop around the grid to place the ranObstacles 
+            for row in range(ROWS):
+                for col in range(COLS):
+                    if [row,col]==src or [row,col]==dest:
+                        grid[row][col]=1
+                    else:
+                        grid[row][col] = 0 if random.random()<gen else 1
+            test_path =a_star_search(grid,src,dest,ROWS,COLS)
+            if test_path:
+                break
+
+
     while running:
 
         #process events
@@ -48,7 +68,25 @@ def main():
             #close program if the event is quit
             if event.type == pygame.QUIT:
                 running = False
+            #click o will generated random obstcal and rest the path,vistied block by agent,agent move, and agent timer
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_o:
+                   ranObstacles()
+                   path_found=[]
+                   visited_path=[]
+                   agent_index=0
+                   agent_timer=0
 
+            #rest all everything on the grid if you click r on the keyboard 
+           
+                if event.key == pygame.K_r:
+                    grid = [[1 for _ in range(COLS)] for _ in range(ROWS)]
+                    src = None
+                    dest = None
+                    path_found = []
+                    visited_path = []
+                    agent_index=0
+                    agent_timer=0
             #
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 #get position of mouse
