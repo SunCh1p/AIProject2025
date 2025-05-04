@@ -24,10 +24,9 @@ def main():
     src = None
     dest = None
     path_found = []
-    visited_path = []
 
 
-    #agent timer
+    #index for accessting the 
     agent_index = 0
     agent_timer = 0
     agent_speed = 100  # ms
@@ -43,7 +42,7 @@ def main():
     running = True
 
 #creating random obsctacles without blocking the start or the goal
-    def ranObstacles(gen=0.3):
+    def ranObstacles(gen=0.5):
         #only genrated when the start and goal block are in the grid 
         if not src or not dest:
             return
@@ -58,14 +57,14 @@ def main():
             test_path =a_star_search(grid,src,dest,ROWS,COLS)
             if test_path:
                 break
-
-
+    #var for checking if a button is pressed
     isPressed = False
+    #var for checking whether to draw border block or delete border block. If True, draw border block, other wise don't
     drawBorder = False
     while running:
         #process events
         delta_time = clock.tick(1000)
-        #get the event
+        #get the inputs
         for event in pygame.event.get():
             #close program if the event is quit
             if event.type == pygame.QUIT:
@@ -74,38 +73,33 @@ def main():
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_o:
                    ranObstacles()
-                   path_found=[]
-                   visited_path=[]
+                   #regenerate the path
+                   path_found=a_star_search(grid, src, dest, ROWS, COLS)
                    agent_index=0
                    agent_timer=0
-
             #rest all everything on the grid if you click r on the keyboard 
-           
                 if event.key == pygame.K_r:
                     grid = [[1 for _ in range(COLS)] for _ in range(ROWS)]
-                    src = None
-                    dest = None
-                    path_found = []
-                    visited_path = []
+                    #regenerate path
+                    path_found = a_star_search(grid, src, dest, ROWS, COLS)
                     agent_index=0
                     agent_timer=0
                 if event.key ==pygame.K_b:
                     drawBorder = not drawBorder
                     print("Draw Border: ", drawBorder)
-         
-            
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 isPressed = True
             elif event.type == pygame.MOUSEBUTTONUP:
                 isPressed = False
+
+            #process events       
             if isPressed == True:
-                print("Mouse is down")
                 #get position of mouse
                 x, y = pygame.mouse.get_pos()
                 #convert mouse position to coordinates
                 col = x // BLOCK_SIZE
                 row = y // BLOCK_SIZE
-                clicked = [row, col]
+                clicked = (row, col)
                 #if src is none, set src to clicked coordinates
                 if src is None:
                     src = clicked
@@ -118,7 +112,6 @@ def main():
                     #set destination to nothing
                     dest = None
                     #set the path to empty becuase it is not vaild anymore  
-                    visited_path = []
                 #set dest if src is set 
                 elif dest is None and clicked != src and src != None:
                     dest = clicked
@@ -128,34 +121,33 @@ def main():
                         grid[row][col] = 0
                     else:
                         grid[row][col] = 1
-                    #reset path found
-                    path_found = []
-                    #reset the coloring with the agent when we add obstacles
-                    visited_path = []
                 #if src and dest are found, get the path
                 if src and dest:
                     #get the path if it exists
                     path_found = a_star_search(grid, src, dest, ROWS, COLS)
-                    visited_path = path_found
                     #if path found just doesn't return any
                     if path_found is None:
                         path_found = []
                     #otherwise agent index and timer is set to 0
                     agent_index = 0
                     agent_timer = 0
-                    print("The path is:", path_found)
-                    print("The visited path is: ", visited_path)
-
-        if path_found and agent_index < len(path_found):
+                        # print("The path is:", path_found)
+                        # print("The visited path is: ", visited_path)
+        #handle agent movement logic
+        if path_found:
             agent_timer += delta_time
             if agent_timer >= agent_speed:
-                #each block the agent move we save postion then we draw the red for the path
-                #visited_path.remove(path_found[agent_index])
-                if(agent_index != 0):
-                    visited_path[agent_index-1] = (-1,1)
-                print("curr location: ", path_found[agent_index])
-                agent_index += 1
+                #move the agent
+                if(path_found and len(path_found) > 1):
+                    print("src being set")
+                    src = path_found[1]
+                    path_found = a_star_search(grid, src, dest, ROWS, COLS)
                 agent_timer = 0
+                if(src == dest):
+                    path_found = []
+                    dest = None
+                if(path_found and len(path_found) > 0):
+                    print("path found: ", path_found)
 
         #display outputs
         screen.fill(WHITE)
@@ -169,13 +161,13 @@ def main():
                 y = i * BLOCK_SIZE
                 rect = pygame.Rect(x, y, BLOCK_SIZE, BLOCK_SIZE)
                 #if current coordinate is the source, make rect blue
-                if [i, j] == src:
+                if (i, j) == src:
                     color = BLUE
                 #if current coordinate is the dest, make it green
-                elif [i, j] == dest:
+                elif (i, j) == dest:
                     color = GREEN
                 #color the path red when it is visited by the agent 
-                elif (i, j) in visited_path:
+                elif path_found and (i, j) in path_found:
                     color = RED
                 #other wise print it as grey
                 else:
