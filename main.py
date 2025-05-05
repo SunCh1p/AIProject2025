@@ -134,6 +134,7 @@ def main():
                         # print("The path is:", path_found)
                         # print("The visited path is: ", visited_path)
         #handle agent movement logic
+        print(delta_time)
         if path_found:
             agent_timer += delta_time
             if agent_timer >= agent_speed:
