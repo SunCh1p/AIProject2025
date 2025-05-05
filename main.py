@@ -42,7 +42,7 @@ def main():
     running = True
 
 #creating random obsctacles without blocking the start or the goal
-    def ranObstacles(gen=0.5):
+    def ranObstacles(gen=0.3):
         #only genrated when the start and goal block are in the grid 
         if not src or not dest:
             return
