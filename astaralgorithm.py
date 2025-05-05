@@ -1,5 +1,3 @@
-# Python program for A* Search Algorithm
-import math
 import heapq
 
 class Cell:
